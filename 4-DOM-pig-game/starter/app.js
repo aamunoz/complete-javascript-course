@@ -11,9 +11,13 @@ Challenges:
 1. A player that rolls two sixes in a row loses their entire score
 2. The winning score is configurable by the players using an input field
 3. Two dice are rolled each time. If either one rolls a one, the player's turn ends
+
+Regarding challenge 1 and 3, I made it so that you need to roll at least one six in one roll, and at least
+1 more six on the next roll to lose your score. If you could lose your score by rolling two sixes in one
+roll, that would suuuuuuuck.
 */
 
-var scores, roundScore, activePlayer, isGameActive, previousDice, maxScore;
+var scores, roundScore, activePlayer, isGameActive, previousRollHad6, maxScore;
 
 function init() {
     scores = [0, 0];
@@ -31,8 +35,8 @@ function init() {
     // var x = document.querySelector('#score-0').textContent;
     // console.log(x);
 
-    // Hide the dice at the beginning of the game so it's not showing some random dice value
-    document.querySelector('.dice').style.display = 'none';
+    // Hide the die at the beginning of the game so it's not showing some random dice value
+    hideDie();
 
     // Getting an element by its ID is faster than using a query selector
     // Reset all indicators
@@ -77,13 +81,18 @@ function changePlayer() {
     document.getElementById('current-1').textContent = '0';
 
     // Reset previousDice
-    previousDice = null;
+    previousRollHad6 = false;
 
     // Change active player indicator. toggle works better than add/remove in this case
     document.querySelector('.player-0-panel').classList.toggle('active');
     document.querySelector('.player-1-panel').classList.toggle('active');
 
-    document.querySelector('.dice').style.display = 'none';
+    hideDie();
+}
+
+function hideDie() {
+    document.getElementById('dice-1').style.display = 'none';
+    document.getElementById('dice-2').style.display = 'none';
 }
 
 // Events can only be processed when execution stack is empty :O
@@ -92,14 +101,19 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
 
     if (isGameActive) {
         // 1. Random number
-        var dice = Math.floor(Math.random() * 6) + 1;
+        var dice1 = Math.floor(Math.random() * 6) + 1;
+        var dice2 = Math.floor(Math.random() * 6) + 1;
 
         // 2. Display result
-        var diceDom = document.querySelector('.dice');
-        diceDom.style.display = 'block';
-        diceDom.src = 'dice-' + dice + '.png';
+        var dice1Dom = document.getElementById('dice-1');
+        dice1Dom.style.display = 'block';
+        dice1Dom.src = 'dice-' + dice1 + '.png';
 
-        if (previousDice === 6 && dice === 6) {
+        var dice2Dom = document.getElementById('dice-2');
+        dice2Dom.style.display = 'block';
+        dice2Dom.src = 'dice-' + dice2 + '.png';
+
+        if (previousRollHad6 && (dice1 === 6 || dice2 === 6)) {
             // Active player loses their turn, and their global score :'(
             scores[activePlayer] = 0;
 
@@ -107,16 +121,19 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
             document.getElementById('score-' + activePlayer).textContent = scores[activePlayer];
 
             changePlayer();
-        } else if (dice != 1) {
+        } else if (dice1 != 1 && dice2 != 1) {
             // Add to the active player's round score
-            roundScore += dice;
+            roundScore += dice1 + dice2;
             document.querySelector('#current-' + activePlayer).textContent = roundScore;
 
-            previousDice = dice;
+            previousRollHad6 = dice1 === 6 || dice2 === 6;
         } else {
             // Player loses their round score and their turn
             changePlayer();
         }
+
+        // Update previous role UI
+        document.getElementById('previous-roll').textContent = dice1 + ' and ' + dice2;
     }
 });
 
@@ -132,7 +149,7 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
         // Check if player won
         if (scores[activePlayer] >= maxScore) {
             document.getElementById('name-' + activePlayer).textContent = 'Winner!';
-            document.querySelector('.dice').style.display = 'none';
+            hideDie();
             
             var winnerPanel = document.querySelector('.player-' + activePlayer + '-panel');
             winnerPanel.classList.remove('active');
