@@ -13,7 +13,7 @@ Challenges:
 3. Two dice are rolled each time. If either one rolls a one, the player's turn ends
 */
 
-var scores, roundScore, activePlayer, isGameActive, previousDice;
+var scores, roundScore, activePlayer, isGameActive, previousDice, maxScore;
 
 function init() {
     scores = [0, 0];
@@ -54,11 +54,18 @@ function init() {
 
     player0Panel.classList.add('active');
 
+    // Determine the max score
+    maxScore = document.getElementById('max-score').value;
+    if (!maxScore) {
+        maxScore = 100;
+    }
+
+    // Display the max score for the current game
+    document.getElementById("current-max-score").textContent = maxScore;
+
     // Set the game to active
     isGameActive = true;
 }
-
-init();
 
 function changePlayer() {
     // Next player
@@ -122,8 +129,8 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
         // Update UI
         document.getElementById('score-' + activePlayer).textContent = scores[activePlayer];
 
-        // Check if player won (value may be less than 100 for testing purposes)
-        if (scores[activePlayer] >= 100) {
+        // Check if player won
+        if (scores[activePlayer] >= maxScore) {
             document.getElementById('name-' + activePlayer).textContent = 'Winner!';
             document.querySelector('.dice').style.display = 'none';
             
@@ -140,3 +147,5 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
 });
 
 document.querySelector('.btn-new').addEventListener('click', init);
+
+init();
