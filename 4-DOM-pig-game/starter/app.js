@@ -13,7 +13,7 @@ Challenges:
 3. Two dice are rolled each time. If either one rolls a one, the player's turn ends
 */
 
-var scores, roundScore, activePlayer, isGameActive;
+var scores, roundScore, activePlayer, isGameActive, previousDice;
 
 function init() {
     scores = [0, 0];
@@ -69,6 +69,9 @@ function changePlayer() {
     document.getElementById('current-0').textContent = '0';
     document.getElementById('current-1').textContent = '0';
 
+    // Reset previousDice
+    previousDice = null;
+
     // Change active player indicator. toggle works better than add/remove in this case
     document.querySelector('.player-0-panel').classList.toggle('active');
     document.querySelector('.player-1-panel').classList.toggle('active');
@@ -89,12 +92,22 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
         diceDom.style.display = 'block';
         diceDom.src = 'dice-' + dice + '.png';
 
-        // 3. Update round score IF the rolled number was NOT a 1 (rolling a 1 ends the turn)
-        if (dice != 1) {
-            // Add score
+        if (previousDice === 6 && dice === 6) {
+            // Active player loses their turn, and their global score :'(
+            scores[activePlayer] = 0;
+
+            // Update UI
+            document.getElementById('score-' + activePlayer).textContent = scores[activePlayer];
+
+            changePlayer();
+        } else if (dice != 1) {
+            // Add to the active player's round score
             roundScore += dice;
             document.querySelector('#current-' + activePlayer).textContent = roundScore;
+
+            previousDice = dice;
         } else {
+            // Player loses their round score and their turn
             changePlayer();
         }
     }
