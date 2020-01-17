@@ -1,6 +1,18 @@
 (
     function() {
-        var score = 0;
+        function score() {
+            var sc = 0;
+
+            return function(correct) {
+                if (correct) {
+                    sc++;
+                }
+
+                return sc;
+            }
+        }
+
+        var scoreKeeper = score();
 
         var Question = function(question, answers, correct) {
             this.question = question;
@@ -25,13 +37,15 @@
         }
 
         Question.prototype.checkAnswerAndPrintResult = function(answer) {
-            if (answer === this.correct) {
+            isCorrect = answer === this.correct;
+            if (isCorrect) {
                 console.log('Correct!')
-                score++;
             } else {
                 console.log('Incorrect.')
             }
-            console.log('Current score: ' + score);
+
+            var currentScore = scoreKeeper(isCorrect);
+            console.log('Current score: ' + currentScore);
         }
 
         var questions = [];
